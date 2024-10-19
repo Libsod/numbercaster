@@ -13,6 +13,7 @@
 #else
 #include <termios.h>
 #include <unistd.h>
+using Termios = struct termios;
 #endif
 
 class ConsoleUtils {
