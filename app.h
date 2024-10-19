@@ -6,7 +6,6 @@
 #include <limits>
 #include <optional>
 #include <stdexcept>
-#include <string>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -37,7 +36,7 @@ class ConsoleUtils {
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 
-    static void printError(const std::string &message) {
+    static void printError(const str &message) {
       std::cerr << std::format("Error: {}\n", message);
     }
 
