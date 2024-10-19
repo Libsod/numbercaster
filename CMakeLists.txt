@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INC_DIR ${CMAKE_SOURCE_DIR}/include)
-set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 file(GLOB SRC_FILES ${SRC_DIR}/*.cpp)
 
 set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
@@ -19,7 +19,6 @@ list(REMOVE_ITEM SRC_FILES ${SRC_DIR}/main.cpp)
 add_executable(gtest ${TEST_FILES} ${SRC_FILES})
 
 target_include_directories(main PRIVATE ${INC_DIR} ${SRC_DIR})
-
 target_include_directories(gtest PRIVATE ${INC_DIR} ${SRC_DIR})
 
 find_package(GTest CONFIG REQUIRED)
