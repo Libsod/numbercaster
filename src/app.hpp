@@ -1,7 +1,6 @@
 #include "types.hpp"
 
-#if defined(_WIN32)
-#else
+#if defined(__linux__) || defined(__APPLE__)
 #include <termios.h>
 using Termios = struct termios;
 #endif
