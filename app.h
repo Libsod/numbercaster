@@ -1,5 +1,4 @@
-#ifndef APP_H
-#define APP_H
+#pragma once
 
 #include "types.hpp"
 #include <format>
@@ -157,5 +156,3 @@ class Application {
   private:
     NumberCast numberCast;
 };
-
-#endif
