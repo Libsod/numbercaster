@@ -5,8 +5,7 @@
 using Termios = struct termios;
 #endif
 
-class ConsoleUtils {
-  public:
+namespace ConsoleUtils {
     static void clearScreen();
 
     void waitForKeyPress();
@@ -15,7 +14,6 @@ class ConsoleUtils {
 
     static void printError(const str &message);
 
-  private:
 #if defined(_WIN32)
     HANDLE hConsole;
     DWORD mode;
@@ -24,15 +22,13 @@ class ConsoleUtils {
 
     void restoreTerminalSettings();
 #else
-    Termios oldt, newt;
+    inline Termios oldt, newt;
 
     void disableCanonicalMode();
 
     void restoreTerminalSettings();
 #endif
-};
-
-extern ConsoleUtils consoleUtils;
+}
 
 namespace NumberCast {
     Optional<f64> getInput(const str &prompt) ;
