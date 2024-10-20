@@ -68,7 +68,7 @@ find_program(NINJA_EXECUTABLE ninja)
 # Set the generator to Ninja if available
 if(NINJA_EXECUTABLE)
     set(CMAKE_GENERATOR "Ninja")
-    message(STATUS "Using Ninja as the build system.")
+    message(STATUS "Ninja was found. Using Ninja as the build system.")
 else()
     message(STATUS "Ninja is the preferred build system, but it was not found. Using the default build system")
 endif()
