@@ -1,138 +1,168 @@
-#include "app.hpp"
-#include <format>
-#include <iostream>
-#include <limits>
-#include <optional>
-#include <stdexcept>
+#include "app.hpp"   // Include namespaces and their methods signatures
+#include <format>    // Include std::format
+#include <iostream>  // Include std::cin, std::cerr, std::streamsize
+#include <limits>    // Include std::numeric_limits
+#include <stdexcept> // Include std::out_of_range
 
 #if defined(_WIN32)
-#include <Windows.h>
+/* Windows-specific macros to avoid conflict with std::max and std::min */
 #undef max
 #undef min
 #else
-#include <unistd.h>
+#include <unistd.h> // For Unix-specific system calls
 #endif
 
+/* Clears the screen depending on the platform */
 void ConsoleUtils::clearScreen() {
 #if defined(_WIN32)
-  std::system("cls");
+  std::system("cls"); // Windows clear command
 
 #elif defined(__linux__) || defined(__APPLE__)
-  std::system("clear");
+  std::system("clear"); // Linux/Unix/MacOS clear command
 #endif
 }
 
+/* Prompts the user to press any key and waits for input, disabling canonical
+ * mode temporarily */
 void ConsoleUtils::waitForKeyPress() {
   std::print("Press any key to continue...");
-  disableCanonicalMode();
-  getchar();
-  restoreTerminalSettings();
+  disableCanonicalMode(); // Disable canonical mode to capture input immediately
+  getchar();              // Wait for key press
+  restoreTerminalSettings(); // Restore original terminal settings
 }
 
+/* Clears the input buffer, discarding any excess input that might be left in
+ * the buffer */
 void ConsoleUtils::clearInputBuffer() {
   std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
+/* Prints an error message to the console using the provided string */
 void ConsoleUtils::printError(const str &message) {
   std::cerr << std::format("Error: {}\n", message);
 }
 
 #if defined(_WIN32)
+/* Disables canonical mode on Windows by modifying the console's input mode
+ * settings */
 void ConsoleUtils::disableCanonicalMode() {
-  hConsole = GetStdHandle(STD_INPUT_HANDLE);
-  GetConsoleMode(hConsole, &mode);
-  SetConsoleMode(hConsole, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
+  hConsole = GetStdHandle(STD_INPUT_HANDLE); // Get handle to standard input
+  GetConsoleMode(hConsole, &mode);           // Retrieve current console mode
+  SetConsoleMode(hConsole,
+                 mode &
+                     ~(ENABLE_LINE_INPUT |
+                       ENABLE_ECHO_INPUT)); // Disable line and echo input modes
 }
 
+/* Restores the console's input mode to its original state on Windows */
 void ConsoleUtils::restoreTerminalSettings() { SetConsoleMode(hConsole, mode); }
 
 #else
-
+/* Disables canonical mode on Unix-based systems by modifying terminal
+ * attributes */
 void ConsoleUtils::disableCanonicalMode() {
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  tcgetattr(STDIN_FILENO, &oldt);          // Get current terminal attributes
+  newt = oldt;                             // Copy to new settings
+  newt.c_lflag &= ~(ICANON | ECHO);        // Disable canonical mode and echo
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Apply new settings
 }
 
+/* Restores the terminal attributes to their original state on Unix-based
+ * systems */
 void ConsoleUtils::restoreTerminalSettings() {
   tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 #endif
 
+/* Prompts the user for input with a given prompt, returning an optional value
+ * if valid input is entered */
 Optional<f64> NumberCast::getInput(const str &prompt) {
   f64 value;
-  std::print("{}", prompt);
+  std::print("{}", prompt); // Print the prompt
 
   if (std::cin >> value) {
-    return value;
+    return value; // Return the value if input is valid
   } else {
-    std::cin.clear();
-    ConsoleUtils::clearScreen();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    return std::nullopt;
+    std::cin.clear();            // Clear input error state
+    ConsoleUtils::clearScreen(); // Clear the screen
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                    '\n'); // Clear input buffer
+    return std::nullopt;   // Return empty optional on invalid input
   }
 }
 
+/* Checks if the given floating-point value is within the range of a 32-bit
+ * integer, throws an exception if out of bounds */
 void NumberCast::checkBounds(f64 value) {
   if (value < std::numeric_limits<i32>::min() ||
       value > std::numeric_limits<i32>::max()) {
-    ConsoleUtils::clearScreen();
-    throw std::out_of_range(std::format("{} is out of bounds for i32", value));
+    ConsoleUtils::clearScreen(); // Clear the screen if value is out of bounds
+    throw std::out_of_range(std::format(
+        "{} is out of bounds for i32",
+        value)); // Throw an exception with a formatted error message
   }
 }
 
+/* Main function for the Application class, handling the core input-output loop
+ * and logic */
 void Application::run() {
+  /* Using namespaces for convenience */
   using namespace NumberCast;
   using namespace ConsoleUtils;
 
   while (true) {
-    clearScreen();
+    clearScreen(); // Clear the screen at the start of each loop iteration
     try {
-      auto aOpt = NumberCast::getInput("Enter the first number: ");
+      /* Prompt for and get the first number */
+      auto aOpt = getInput("Enter the first number: ");
 
-      if (!aOpt) {
+      if (!aOpt) { // Check for invalid input
         printError("Invalid input for the first number.");
-        waitForKeyPress();
+        waitForKeyPress(); // Wait for user input before continuing
         continue;
       }
 
-      f64 a = *aOpt;
+      f64 a = *aOpt; // Extract the value from the optional
 
-      clearInputBuffer();
-      checkBounds(a);
+      clearInputBuffer(); // Clear the input buffer after receiving the input
+      checkBounds(a);     // Check if the value is within bounds
 
+      /* Prompt for and get the second number */
       auto bOpt = getInput("Enter the second number: ");
 
-      if (!bOpt) {
+      if (!bOpt) { // Check for invalid input
         printError("Invalid input for the second number.");
-        waitForKeyPress();
+        waitForKeyPress(); // Wait for user input before continuing
         continue;
       }
 
-      f64 b = *bOpt;
+      f64 b = *bOpt; // Extract the value from the optional
 
-      clearInputBuffer();
-      checkBounds(b);
+      clearInputBuffer(); // Clear the input buffer after receiving the input
+      checkBounds(b);     // Check if the value is within bounds
 
+      /* Safely cast both numbers to 32-bit integers */
       i32 aInt32 = static_cast<i32>(a);
       i32 bInt32 = static_cast<i32>(b);
 
-      clearScreen();
+      clearScreen(); // Clear the screen before displaying the result
 
+      /* Display the safely casted values and the larger of the two numbers */
       std::println("Values of safely casted f64 to i32: {}, {}", aInt32,
                    bInt32);
       std::println("Bigger value: {}", getMax(aInt32, bInt32));
 
-      waitForKeyPress();
+      waitForKeyPress(); // Wait for user input before restarting the loop
 
     } catch (const std::out_of_range &err) {
+      /* Handle out-of-range error, print error message, and prompt user to
+       * enter valid input */
       printError(err.what());
       std::cerr << std::format("Please enter a value between {} and {}.\n",
                                std::numeric_limits<i32>::min(),
                                std::numeric_limits<i32>::max());
 
-      waitForKeyPress();
+      waitForKeyPress(); // Wait for user input before restarting the loop
     }
   }
 }
