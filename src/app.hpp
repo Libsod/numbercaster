@@ -15,8 +15,8 @@ static void clearInputBuffer();
 static void printError(const str &message);
 
 #if defined(_WIN32)
-HANDLE hConsole;
-DWORD mode;
+inline HANDLE hConsole;
+inline DWORD mode;
 
 void disableCanonicalMode();
 
