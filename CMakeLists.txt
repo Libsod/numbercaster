@@ -10,6 +10,17 @@ endif()
 # Include FetchContent for downloading and managing external projects
 include(FetchContent)
 
+# Check if Ninja is available
+find_program(NINJA_EXECUTABLE ninja)
+
+# Set the generator to Ninja if available
+if(NINJA_EXECUTABLE)
+  set(CMAKE_GENERATOR "Ninja")
+  message(STATUS "Ninja was found. Using Ninja as the build system.")
+else()
+  message(STATUS "Ninja is the preferred build system, but it was not found. Using the default build system")
+endif()
+
 # Check if vcpkg is already installed by finding the executable
 find_program(VPCKG_EXECUTABLE vcpkg)
 
@@ -68,23 +79,24 @@ else()
     endif()
 endif()
 
-# Check if Ninja is available
-find_program(NINJA_EXECUTABLE ninja)
-
-# Set the generator to Ninja if available
-if(NINJA_EXECUTABLE)
-    set(CMAKE_GENERATOR "Ninja")
-    message(STATUS "Ninja was found. Using Ninja as the build system.")
-else()
-    message(STATUS "Ninja is the preferred build system, but it was not found. Using the default build system")
-endif()
-
 # Define the project name and the language(s) it will use
 project("numbercaster" LANGUAGES CXX)
 
 # Set the C++ standard to C++23 and enforce its usage
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set optimization flags for Release and RelWithDebInfo modes
+if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  message(STATUS "Configuring ${CMAKE_BUILD_TYPE} mode with optimization flags.")
+
+  # Set compiler flags for Release and RelWithDebInfo modes
+  if(NOT MSVC)
+      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -flto")
+  else()
+      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /O2")
+  endif()
+endif()
 
 # Set the include directory for header files
 set(INC_DIR ${CMAKE_SOURCE_DIR}/include)
@@ -117,22 +129,6 @@ target_link_libraries(main PRIVATE fmt::fmt)
 # Find and link the GTest package
 find_package(GTest CONFIG REQUIRED)
 target_link_libraries(gtest PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
-
-# Set optimization flags for Release and RelWithDebInfo modes
-if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    message(STATUS "Configuring ${CMAKE_BUILD_TYPE} mode with optimization flags.")
-
-    # Set compiler flags for Release and RelWithDebInfo modes
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
-    endif()
-
-    # Enable LTO (Link Time Optimization)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    message(STATUS "Link Time Optimization enabled for ${CMAKE_BUILD_TYPE} mode.")
-endif()
 
 # Enable the testing framework for CMake and define a test that runs all tests
 enable_testing()
