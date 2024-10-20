@@ -1,7 +1,3 @@
 {
-  "dependencies": [
-    "gtest",
-    "vcpkg-cmake",
-    "vcpkg-cmake-config"
-  ]
+  "dependencies": ["gtest", "vcpkg-cmake", "vcpkg-cmake-config"]
 }
