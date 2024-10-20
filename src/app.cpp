@@ -16,6 +16,7 @@
 void ConsoleUtils::clearScreen() {
 #if defined(_WIN32)
   std::system("cls");
+
 #elif defined(__linux__) || defined(__APPLE__)
   std::system("clear");
 #endif
@@ -44,7 +45,9 @@ void ConsoleUtils::disableCanonicalMode() {
 }
 
 void ConsoleUtils::restoreTerminalSettings() { SetConsoleMode(hConsole, mode); }
+
 #else
+
 void ConsoleUtils::disableCanonicalMode() {
   tcgetattr(STDIN_FILENO, &oldt);
   newt = oldt;

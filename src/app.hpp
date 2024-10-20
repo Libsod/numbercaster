@@ -6,37 +6,39 @@ using Termios = struct termios;
 #endif
 
 namespace ConsoleUtils {
-    static void clearScreen();
+static void clearScreen();
 
-    void waitForKeyPress();
+void waitForKeyPress();
 
-    static void clearInputBuffer();
+static void clearInputBuffer();
 
-    static void printError(const str &message);
+static void printError(const str &message);
 
 #if defined(_WIN32)
-    HANDLE hConsole;
-    DWORD mode;
+HANDLE hConsole;
+DWORD mode;
 
-    void disableCanonicalMode();
+void disableCanonicalMode();
 
-    void restoreTerminalSettings();
+void restoreTerminalSettings();
+
 #else
-    inline Termios oldt, newt;
 
-    void disableCanonicalMode();
+inline Termios oldt, newt;
 
-    void restoreTerminalSettings();
+void disableCanonicalMode();
+
+void restoreTerminalSettings();
 #endif
-}
+} // namespace ConsoleUtils
 
 namespace NumberCast {
-    Optional<f64> getInput(const str &prompt) ;
+Optional<f64> getInput(const str &prompt);
 
-    void checkBounds(f64 value) ;
+void checkBounds(f64 value);
 
-    template <typename T> T getMax(T a, T b)  { return (a > b) ? a : b; }
-};
+template <typename T> T getMax(T a, T b) { return (a > b) ? a : b; }
+}; // namespace NumberCast
 
 class Application {
   public:
