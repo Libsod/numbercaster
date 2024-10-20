@@ -1,6 +1,12 @@
 # Specify the minimum required version of CMake
 cmake_minimum_required(VERSION 3.21.0)
 
+# Set the default build type to Debug if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+    message(STATUS "No build type specified. Setting to Debug by default.")
+endif()
+
 # Include FetchContent for downloading and managing external projects
 include(FetchContent)
 
@@ -58,7 +64,7 @@ else()
         set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
     else()
         set(VCPKG_MICROSOFT_LINK "https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#2---set-up-the-project")
-    message(FATAL_ERROR "VCPKG_ROOT environment variable is not set. Please set it to the vcpkg installation path or or specify the path to the toolchain file manually (--toolchain flag). For instructions, visit: ${VCPKG_MICROSOFT_LINK}")
+        message(FATAL_ERROR "VCPKG_ROOT environment variable is not set. Please set it to the vcpkg installation path or specify the path to the toolchain file manually (--toolchain flag). For instructions, visit: ${VCPKG_MICROSOFT_LINK}")
     endif()
 endif()
 
@@ -111,6 +117,22 @@ target_link_libraries(main PRIVATE fmt::fmt)
 # Find and link the GTest package
 find_package(GTest CONFIG REQUIRED)
 target_link_libraries(gtest PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+
+# Set optimization flags for Release and RelWithDebInfo modes
+if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    message(STATUS "Configuring ${CMAKE_BUILD_TYPE} mode with optimization flags.")
+
+    # Set compiler flags for Release and RelWithDebInfo modes
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
+    endif()
+
+    # Enable LTO (Link Time Optimization)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    message(STATUS "Link Time Optimization enabled for ${CMAKE_BUILD_TYPE} mode.")
+endif()
 
 # Enable the testing framework for CMake and define a test that runs all tests
 enable_testing()
