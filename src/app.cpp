@@ -6,7 +6,9 @@
 #include <stdexcept>
 
 #if defined(_WIN32)
-#include <windows.h>
+#include <Windows.h>
+#undef max
+#undef min
 #else
 #include <unistd.h>
 #endif
@@ -78,54 +80,56 @@ void NumberCast::checkBounds(f64 value) {
 }
 
 void Application::run() {
+  using namespace NumberCast;
+  using namespace ConsoleUtils;
 
   while (true) {
-    ConsoleUtils::clearScreen();
+    clearScreen();
     try {
       auto aOpt = NumberCast::getInput("Enter the first number: ");
 
       if (!aOpt) {
-        ConsoleUtils::printError("Invalid input for the first number.");
-        ConsoleUtils::waitForKeyPress();
+        printError("Invalid input for the first number.");
+        waitForKeyPress();
         continue;
       }
 
       f64 a = *aOpt;
 
-      ConsoleUtils::clearInputBuffer();
-      NumberCast::checkBounds(a);
+      clearInputBuffer();
+      checkBounds(a);
 
-      auto bOpt = NumberCast::getInput("Enter the second number: ");
+      auto bOpt = getInput("Enter the second number: ");
 
       if (!bOpt) {
-        ConsoleUtils::printError("Invalid input for the second number.");
-        ConsoleUtils::waitForKeyPress();
+        printError("Invalid input for the second number.");
+        waitForKeyPress();
         continue;
       }
 
       f64 b = *bOpt;
 
-      ConsoleUtils::clearInputBuffer();
-      NumberCast::checkBounds(b);
+      clearInputBuffer();
+      checkBounds(b);
 
       i32 aInt32 = static_cast<i32>(a);
       i32 bInt32 = static_cast<i32>(b);
 
-      ConsoleUtils::clearScreen();
+      clearScreen();
 
       std::println("Values of safely casted f64 to i32: {}, {}", aInt32,
                    bInt32);
-      std::println("Bigger value: {}", NumberCast::getMax(aInt32, bInt32));
+      std::println("Bigger value: {}", getMax(aInt32, bInt32));
 
-      ConsoleUtils::waitForKeyPress();
+      waitForKeyPress();
 
     } catch (const std::out_of_range &err) {
-      ConsoleUtils::printError(err.what());
+      printError(err.what());
       std::cerr << std::format("Please enter a value between {} and {}.\n",
                                std::numeric_limits<i32>::min(),
                                std::numeric_limits<i32>::max());
 
-      ConsoleUtils::waitForKeyPress();
+      waitForKeyPress();
     }
   }
 }
