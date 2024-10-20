@@ -104,11 +104,14 @@ add_executable(gtest ${TEST_FILES} ${SRC_FILES})
 target_include_directories(main PRIVATE ${INC_DIR} ${SRC_DIR})
 target_include_directories(gtest PRIVATE ${INC_DIR} ${SRC_DIR})
 
-# Use vcpkg to find and link the GTest package
+# Find and link the fmt package
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(main PRIVATE fmt::fmt)
+
+# Find and link the GTest package
 find_package(GTest CONFIG REQUIRED)
 target_link_libraries(gtest PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
 
 # Enable the testing framework for CMake and define a test that runs all tests
 enable_testing()
 add_test(NAME AllTests COMMAND gtest)
-

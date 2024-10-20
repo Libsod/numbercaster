@@ -1,5 +1,5 @@
-#include "app.hpp"   // Include namespaces and their methods signatures
-#include <format>    // Include std::format
+#include "app.hpp" // Include namespaces and their methods signatures
+#include <fmt/core.h>
 #include <iostream>  // Include std::cin, std::cerr, std::streamsize
 #include <limits>    // Include std::numeric_limits
 #include <stdexcept> // Include std::out_of_range
@@ -25,7 +25,7 @@ void ConsoleUtils::clearScreen() {
 /* Prompts the user to press any key and waits for input, disabling canonical
  * mode temporarily */
 void ConsoleUtils::waitForKeyPress() {
-  std::print("Press any key to continue...");
+  fmt::print("Press any key to continue...");
   disableCanonicalMode(); // Disable canonical mode to capture input immediately
   getchar();              // Wait for key press
   restoreTerminalSettings(); // Restore original terminal settings
@@ -39,7 +39,7 @@ void ConsoleUtils::clearInputBuffer() {
 
 /* Prints an error message to the console using the provided string */
 void ConsoleUtils::printError(const str &message) {
-  std::cerr << std::format("Error: {}\n", message);
+  std::cerr << fmt::format("Error: {}\n", message);
 }
 
 #if defined(_WIN32)
@@ -78,7 +78,7 @@ void ConsoleUtils::restoreTerminalSettings() {
  * if valid input is entered */
 Optional<f64> NumberCast::getInput(const str &prompt) {
   f64 value;
-  std::print("{}", prompt); // Print the prompt
+  fmt::print("{}", prompt); // Print the prompt
 
   if (std::cin >> value) {
     return value; // Return the value if input is valid
@@ -97,7 +97,7 @@ void NumberCast::checkBounds(f64 value) {
   if (value < std::numeric_limits<i32>::min() ||
       value > std::numeric_limits<i32>::max()) {
     ConsoleUtils::clearScreen(); // Clear the screen if value is out of bounds
-    throw std::out_of_range(std::format(
+    throw std::out_of_range(fmt::format(
         "{} is out of bounds for i32",
         value)); // Throw an exception with a formatted error message
   }
@@ -148,9 +148,9 @@ void Application::run() {
       clearScreen(); // Clear the screen before displaying the result
 
       /* Display the safely casted values and the larger of the two numbers */
-      std::println("Values of safely casted f64 to i32: {}, {}", aInt32,
+      fmt::println("Values of safely casted f64 to i32: {}, {}", aInt32,
                    bInt32);
-      std::println("Bigger value: {}", getMax(aInt32, bInt32));
+      fmt::println("Bigger value: {}", getMax(aInt32, bInt32));
 
       waitForKeyPress(); // Wait for user input before restarting the loop
 
@@ -158,7 +158,7 @@ void Application::run() {
       /* Handle out-of-range error, print error message, and prompt user to
        * enter valid input */
       printError(err.what());
-      std::cerr << std::format("Please enter a value between {} and {}.\n",
+      std::cerr << fmt::format("Please enter a value between {} and {}.\n",
                                std::numeric_limits<i32>::min(),
                                std::numeric_limits<i32>::max());
 
