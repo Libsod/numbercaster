@@ -1,5 +1,5 @@
 # Specify the minimum required version of CMake
-cmake_minimum_required(VERSION 3.21.0)
+cmake_minimum_required(VERSION 3.18.0 FATAL_ERROR)
 
 # Set the default build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -31,6 +31,7 @@ if(NOT VPCKG_EXECUTABLE)
             RESULT_VARIABLE git_result
         )
         
+        # Check for clone success
         if(git_result)
             message(FATAL_ERROR "Failed to clone vcpkg from GitHub.")
         endif()
@@ -74,17 +75,21 @@ project("numbercaster" LANGUAGES CXX)
 # Set the C++ standard to C++23 and enforce its usage
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Enable colored diagnostics
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 # Set optimization flags for Release and RelWithDebInfo modes
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  message(STATUS "Configuring ${CMAKE_BUILD_TYPE} mode with optimization flags.")
+    message(STATUS "Configuring ${CMAKE_BUILD_TYPE} mode with optimization flags.")
 
-  # Set compiler flags for Release and RelWithDebInfo modes
-  if(NOT MSVC)
-      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -flto")
-  else()
-      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /O2")
-  endif()
+    # Set compiler flags for Release and RelWithDebInfo modes
+    if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang"))
+        add_compile_options(-Wall -Wextra -O3 -flto)
+    elseif(DEFINED MSVC)
+        add_compile_options(/O2)
+    endif()
 endif()
 
 # Set the include directory for header files
@@ -98,22 +103,23 @@ file(GLOB SRC_FILES ${SRC_DIR}/*.cpp)
 set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 file(GLOB TEST_FILES ${TEST_DIR}/*.cpp)
 
-# Define the main executable and link it with the source files
+# Define the main target and link it with the source files
 add_executable(main ${SRC_FILES})
 
 # Remove main.cpp from the list of source files when building the gtest target
 list(REMOVE_ITEM SRC_FILES ${SRC_DIR}/main.cpp)
 
-# Define the gtest executable that will run the unit tests
+# Define the gtest target that will run the unit tests
 add_executable(gtest ${TEST_FILES} ${SRC_FILES})
 
-# Include directories for the main executable and gtest executable
+# Include directories for the targets
 target_include_directories(main PRIVATE ${INC_DIR} ${SRC_DIR})
 target_include_directories(gtest PRIVATE ${INC_DIR} ${SRC_DIR})
 
 # Find and link the fmt package
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(main PRIVATE fmt::fmt)
+target_link_libraries(gtest PRIVATE fmt::fmt)
 
 # Find and link the GTest package
 find_package(GTest CONFIG REQUIRED)
@@ -121,4 +127,5 @@ target_link_libraries(gtest PRIVATE GTest::gtest GTest::gtest_main GTest::gmock 
 
 # Enable the testing framework for CMake and define a test that runs all tests
 enable_testing()
-add_test(NAME AllTests COMMAND gtest)
+include(GoogleTest)
+gtest_discover_tests(gtest)
