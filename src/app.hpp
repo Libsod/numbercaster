@@ -6,6 +6,9 @@
 #include <termios.h>
 using Termios = struct termios;
 #else
+/* Windows-specific macros to avoid conflict with std::max and std::min */
+#undef max
+#undef min
 #include <Windows.h>
 #endif
 

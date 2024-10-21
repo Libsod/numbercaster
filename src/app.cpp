@@ -4,11 +4,7 @@
 #include <limits>    // Include std::numeric_limits
 #include <stdexcept> // Include std::out_of_range
 
-#if defined(_WIN32)
-/* Windows-specific macros to avoid conflict with std::max and std::min */
-#undef max
-#undef min
-#else
+#if defined(__linux__) || defined(__APPLE__)
 #include <unistd.h> // For Unix-specific system calls
 #endif
 
