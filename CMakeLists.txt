@@ -10,17 +10,6 @@ endif()
 # Include FetchContent for downloading and managing external projects
 include(FetchContent)
 
-# Check if Ninja is available
-find_program(NINJA_EXECUTABLE ninja)
-
-# Set the generator to Ninja if available
-if(NINJA_EXECUTABLE)
-  set(CMAKE_GENERATOR "Ninja")
-  message(STATUS "Ninja was found. Using Ninja as the build system.")
-else()
-  message(STATUS "Ninja is the preferred build system, but it was not found. Using the default build system")
-endif()
-
 # Check if vcpkg is already installed by finding the executable
 find_program(VPCKG_EXECUTABLE vcpkg)
 
