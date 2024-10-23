@@ -2,14 +2,14 @@
 #include "types.hpp"
 
 /* Platform-specific includes for terminal handling */
-#if defined(__linux__) || defined(__APPLE__)
-#include <termios.h>
-using Termios = struct termios;
-#else
+#if defined(_WIN32)
 /* Windows-specific macros to avoid conflict with std::max and std::min */
 #undef max
 #undef min
 #include <Windows.h>
+#elif defined(__linux__) || defined(__APPLE__)
+#include <termios.h>
+using Termios = struct termios;
 #endif
 
 /* Namespace containing utility functions for console handling */
@@ -40,7 +40,7 @@ void disableCanonicalMode();
 /* Restores terminal settings to their original state on Windows */
 void restoreTerminalSettings();
 
-#else
+#elif defined(__linux__) || defined(__APPLE__)
 /* Unix-specific terminal settings (old and new modes) */
 inline Termios oldt, newt;
 

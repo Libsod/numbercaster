@@ -53,7 +53,7 @@ void ConsoleUtils::disableCanonicalMode() {
 /* Restores the console's input mode to its original state on Windows */
 void ConsoleUtils::restoreTerminalSettings() { SetConsoleMode(hConsole, mode); }
 
-#else
+#elif defined(__linux__) || defined(__APPLE__)
 /* Disables canonical mode on Unix-based systems by modifying terminal
  * attributes */
 void ConsoleUtils::disableCanonicalMode() {
