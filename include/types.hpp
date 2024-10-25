@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>  // Include int32_t, int64_t
 #include <optional> // Include std::optional
 #include <string>   // Include std::string

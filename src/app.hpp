@@ -1,3 +1,5 @@
+#pragma once
+
 /* Including custom shortened types (Yeah, like in Rust) */
 #include "types.hpp"
 
