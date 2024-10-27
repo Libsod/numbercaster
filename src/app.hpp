@@ -6,9 +6,9 @@
 /* Platform-specific includes for terminal handling */
 #if defined(_WIN32)
 /* Windows-specific macros to avoid conflict with std::max and std::min */
+#include <Windows.h>
 #undef max
 #undef min
-#include <Windows.h>
 #elif defined(__linux__) || defined(__APPLE__)
 #include <termios.h>
 using Termios = struct termios;
