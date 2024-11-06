@@ -14,7 +14,7 @@ void ConsoleUtils::clearScreen() {
   std::system("cls"); // Windows clear command
 
 #elif defined(__linux__) || defined(__APPLE__)
-  std::system("clear"); // Linux/Unix/MacOS clear command
+  std::system("clear"); // Linux/Unix/macOS clear command
 #endif
 }
 
@@ -118,7 +118,7 @@ void Application::run() {
         continue;
       }
 
-      f64 a = *aOpt; // Extract the value from the optional
+      const f64 a = *aOpt; // Extract the value from the optional
 
       clearInputBuffer(); // Clear the input buffer after receiving the input
       checkBounds(a);     // Check if the value is within bounds
@@ -132,7 +132,7 @@ void Application::run() {
         continue;
       }
 
-      f64 b = *bOpt; // Extract the value from the optional
+      const f64 b = *bOpt; // Extract the value from the optional
 
       clearInputBuffer(); // Clear the input buffer after receiving the input
       checkBounds(b);     // Check if the value is within bounds
@@ -143,7 +143,7 @@ void Application::run() {
 
       clearScreen(); // Clear the screen before displaying the result
 
-      /* Display the safely casted values and the larger of the two numbers */
+      /* Display the safely cast values and the larger of the two numbers */
       fmt::println("Values of safely casted f64 to i32: {}, {}", aInt32,
                    bInt32);
       fmt::println("Bigger value: {}", getMax(aInt32, bInt32));
