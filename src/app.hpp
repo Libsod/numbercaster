@@ -59,8 +59,8 @@ void restoreTerminalSettings();
 namespace NumberCast {
 
 /* Gets user input from the console with the provided prompt and returns it as
- * an Optional double */
-Optional<f64> getInput(const str &prompt);
+ * an Option double */
+Option<f64> getInput(const str &prompt);
 
 /* Checks if the given floating-point value is within valid bounds and throws an
  * error if not */

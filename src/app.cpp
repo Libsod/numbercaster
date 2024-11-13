@@ -35,7 +35,7 @@ void ConsoleUtils::clearInputBuffer() {
 
 /* Prints an error message to the console using the provided string */
 void ConsoleUtils::printError(const str &message) {
-  std::cerr << fmt::format("Error: {}\n", message);
+  fmt::print(stderr, "Error: {}\n", message);
 }
 
 #if defined(_WIN32)
@@ -72,18 +72,17 @@ void ConsoleUtils::restoreTerminalSettings() {
 
 /* Prompts the user for input with a given prompt, returning an optional value
  * if valid input is entered */
-Optional<f64> NumberCast::getInput(const str &prompt) {
+Option<f64> NumberCast::getInput(const str &prompt) {
   f64 value;
   fmt::print("{}", prompt); // Print the prompt
 
   if (std::cin >> value) {
     return value; // Return the value if input is valid
   } else {
-    std::cin.clear();            // Clear input error state
-    ConsoleUtils::clearScreen(); // Clear the screen
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
-                    '\n'); // Clear input buffer
-    return std::nullopt;   // Return empty optional on invalid input
+    std::cin.clear();                 // Clear input error state
+    ConsoleUtils::clearScreen();      // Clear the screen
+    ConsoleUtils::clearInputBuffer(); // Clear input buffer
+    return std::nullopt;              // Return empty optional on invalid
   }
 }
 
@@ -154,9 +153,9 @@ void Application::run() {
       /* Handle out-of-range error, print error message, and prompt user to
        * enter valid input */
       printError(err.what());
-      std::cerr << fmt::format("Please enter a value between {} and {}.\n",
-                               std::numeric_limits<i32>::min(),
-                               std::numeric_limits<i32>::max());
+      fmt::println(stderr, "Please enter a value between {} and {}.",
+                   std::numeric_limits<i32>::min(),
+                   std::numeric_limits<i32>::max());
 
       waitForKeyPress(); // Wait for user input before restarting the loop
     }

@@ -13,4 +13,4 @@ using str = std::string; // Alias for std::string
 
 /* Template alias for std::optional, providing a shorthand way to declare
  * optional types: Optional<T> */
-template <typename T> using Optional = std::optional<T>;
+template <typename T> using Option = std::optional<T>;
