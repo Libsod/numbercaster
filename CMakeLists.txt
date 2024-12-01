@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.18.0 FATAL_ERROR)
 
 # Set the default build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug")
-    message(STATUS "No build type specified. Setting to Debug by default.")
+  set(CMAKE_BUILD_TYPE "Debug")
+  message(STATUS "No build type specified. Setting to Debug by default.")
 endif()
 
 # Include FetchContent for downloading and managing external projects
@@ -14,65 +14,65 @@ include(FetchContent)
 find_program(VPCKG_EXECUTABLE vcpkg)
 
 if(NOT VPCKG_EXECUTABLE)
-    # Define the vcpkg directory relative to your project's root directory
-    set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/vcpkg")
+  # Define the vcpkg directory relative to your project's root directory
+  set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/vcpkg")
 
-    # If vcpkg is not found, check if the directory exists
-    if(NOT EXISTS "${VCPKG_DIR}")
-        message(STATUS "Directory ${VCPKG_DIR} does not exist. Creating it...")
-        # Create the vcpkg directory if it does not exist
-        file(MAKE_DIRECTORY "${VCPKG_DIR}")
+  # If vcpkg is not found, check if the directory exists
+  if(NOT EXISTS "${VCPKG_DIR}")
+    message(STATUS "Directory ${VCPKG_DIR} does not exist. Creating it...")
+    # Create the vcpkg directory if it does not exist
+    file(MAKE_DIRECTORY "${VCPKG_DIR}")
 
-        # Fetch vcpkg from GitHub
-        message(STATUS "Cloning vcpkg from GitHub...")
-        execute_process(
+    # Fetch vcpkg from GitHub
+    message(STATUS "Cloning vcpkg from GitHub...")
+    execute_process(
             COMMAND git clone https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
             WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
             RESULT_VARIABLE git_result
         )
-        
-        # Check for clone success
-        if(git_result)
-            message(FATAL_ERROR "Failed to clone vcpkg from GitHub.")
-        endif()
-    else()
-        message(STATUS "Using existing vcpkg directory at: ${VCPKG_DIR}")
-    endif()
 
-    # Run the bootstrap script if vcpkg is available
-    if(EXISTS "${VCPKG_DIR}/bootstrap-vcpkg.sh" OR EXISTS "${VCPKG_DIR}/bootstrap-vcpkg.bat")
-        message(STATUS "Bootstrapping vcpkg...")
-        if(UNIX)
-            execute_process(
+    # Check for clone success
+    if(git_result)
+      message(FATAL_ERROR "Failed to clone vcpkg from GitHub.")
+    endif()
+  else()
+    message(STATUS "Using existing vcpkg directory at: ${VCPKG_DIR}")
+  endif()
+
+  # Run the bootstrap script if vcpkg is available
+  if(EXISTS "${VCPKG_DIR}/bootstrap-vcpkg.sh" OR EXISTS "${VCPKG_DIR}/bootstrap-vcpkg.bat")
+    message(STATUS "Bootstrapping vcpkg...")
+    if(UNIX)
+      execute_process(
                 COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" ./bootstrap-vcpkg.sh -disableMetrics
             )
-        elseif(WIN32)
-            execute_process(
+    elseif(WIN32)
+      execute_process(
                 COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" .\\bootstrap-vcpkg.bat -disableMetrics
             )
-        endif()
-    else()
-        message(FATAL_ERROR "Bootstrap script not found in ${VCPKG_DIR}. Try to git clone it in ${VCPKG_DIR} manually")
     endif()
+  else()
+    message(FATAL_ERROR "Bootstrap script not found in ${VCPKG_DIR}. Try to git clone it in ${VCPKG_DIR} manually")
+  endif()
 
-    # Set the VCPKG_ROOT environment variable
-    set(ENV{VCPKG_ROOT} "${VCPKG_DIR}")
-    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+  # Set the VCPKG_ROOT environment variable
+  set(ENV{VCPKG_ROOT} "${VCPKG_DIR}")
+  set(CMAKE_TOOLCHAIN_FILE "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 else()
-    # Check if the VCPKG_ROOT environment variable is set
-    if(DEFINED ENV{VCPKG_ROOT})
-        message(STATUS "Using existing vcpkg found at: $ENV{VCPKG_ROOT}")
-        set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-    else()
-        set(VCPKG_MICROSOFT_LINK "https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#2---set-up-the-project")
-        message(FATAL_ERROR "VCPKG_ROOT environment variable is not set. Please set it to the vcpkg installation path or specify the path to the toolchain file manually (--toolchain flag). For instructions, visit: ${VCPKG_MICROSOFT_LINK}")
-    endif()
+  # Check if the VCPKG_ROOT environment variable is set
+  if(DEFINED ENV{VCPKG_ROOT})
+    message(STATUS "Using existing vcpkg found at: $ENV{VCPKG_ROOT}")
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+  else()
+    set(VCPKG_MICROSOFT_LINK "https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#2---set-up-the-project")
+    message(FATAL_ERROR "VCPKG_ROOT environment variable is not set. Please set it to the vcpkg installation path or specify the path to the toolchain file manually (--toolchain flag). For instructions, visit: ${VCPKG_MICROSOFT_LINK}")
+  endif()
 endif()
 
 # Define the project name and the language(s) it will use
 project("numbercaster" LANGUAGES CXX)
 
-# Set the C++ standard to C++23 and enforce its usage
+# Set the C++ standard to C++20 and enforce its usage
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -82,14 +82,14 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 # Set optimization flags for Release and RelWithDebInfo modes
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    message(STATUS "Configuring ${CMAKE_BUILD_TYPE} mode with optimization flags.")
+  message(STATUS "Configuring ${CMAKE_BUILD_TYPE} mode with optimization flags.")
 
-    # Set compiler flags for Release and RelWithDebInfo modes
-    if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang"))
-        add_compile_options(-Wall -Wextra -O3 -flto)
-    elseif(DEFINED MSVC)
-        add_compile_options(/O2)
-    endif()
+  # Set compiler flags for Release and RelWithDebInfo modes
+  if(("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang"))
+    add_compile_options(-Wall -Wextra -O3 -flto)
+  elseif(DEFINED MSVC)
+    add_compile_options(/O2)
+  endif()
 endif()
 
 # Set the include directory for header files
